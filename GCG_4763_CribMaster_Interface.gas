@@ -1,0 +1,490 @@
+Program.Sub.ScreenSU.Start
+gui.ReceiptsToWO..create
+gui.ReceiptsToWO..caption("Receipts To WO")
+gui.ReceiptsToWO..size(3945,4125)
+gui.ReceiptsToWO..position(0,0)
+gui.ReceiptsToWO..event(unload,ProgramEnd)
+gui.ReceiptsToWO..alwaysontop(False)
+gui.ReceiptsToWO..fontname("Arial")
+gui.ReceiptsToWO..fontsize(8)
+gui.ReceiptsToWO..forecolor(0)
+gui.ReceiptsToWO..fontstyle(False,False,False,False,False)
+gui.ReceiptsToWO..BackColor(-2147483633)
+gui.ReceiptsToWO..controlbox(True)
+gui.ReceiptsToWO..maxbutton(True)
+gui.ReceiptsToWO..minbutton(True)
+gui.ReceiptsToWO..mousepointer(0)
+gui.ReceiptsToWO..moveable(True)
+gui.ReceiptsToWO..sizeable(True)
+gui.ReceiptsToWO..ShowInTaskBar(True)
+gui.ReceiptsToWO..titlebar(True)
+gui.ReceiptsToWO.datepickerSTART.create(datepicker)
+gui.ReceiptsToWO.datepickerSTART.visible(True)
+gui.ReceiptsToWO.datepickerSTART.size(1935,285)
+gui.ReceiptsToWO.datepickerSTART.zorder(0)
+gui.ReceiptsToWO.datepickerSTART.position(900,1100)
+gui.ReceiptsToWO.datepickerSTART.enabled(True)
+gui.ReceiptsToWO.datepickerEND.create(datepicker)
+gui.ReceiptsToWO.datepickerEND.visible(True)
+gui.ReceiptsToWO.datepickerEND.size(1935,375)
+gui.ReceiptsToWO.datepickerEND.zorder(0)
+gui.ReceiptsToWO.datepickerEND.position(900,2100)
+gui.ReceiptsToWO.datepickerEND.enabled(True)
+gui.ReceiptsToWO.lbl1.create(label)
+gui.ReceiptsToWO.lbl1.caption("Enter Date Range")
+gui.ReceiptsToWO.lbl1.backstyle(0)
+gui.ReceiptsToWO.lbl1.visible(True)
+gui.ReceiptsToWO.lbl1.size(1350,255)
+gui.ReceiptsToWO.lbl1.zorder(1)
+gui.ReceiptsToWO.lbl1.position(1145,470)
+gui.ReceiptsToWO.lbl1.enabled(True)
+gui.ReceiptsToWO.lbl1.fontname("Arial")
+gui.ReceiptsToWO.lbl1.fontsize(8)
+gui.ReceiptsToWO.lbl1.BackColor(-2147483633)
+gui.ReceiptsToWO.lbl2.create(label)
+gui.ReceiptsToWO.lbl2.caption("Through")
+gui.ReceiptsToWO.lbl2.backstyle(0)
+gui.ReceiptsToWO.lbl2.visible(True)
+gui.ReceiptsToWO.lbl2.size(765,255)
+gui.ReceiptsToWO.lbl2.zorder(1)
+gui.ReceiptsToWO.lbl2.position(1400,1600)
+gui.ReceiptsToWO.lbl2.enabled(True)
+gui.ReceiptsToWO.lbl2.fontname("Arial")
+gui.ReceiptsToWO.lbl2.fontsize(8)
+gui.ReceiptsToWO.lbl2.BackColor(-2147483633)
+gui.ReceiptsToWO.cmdOK.create(button)
+gui.ReceiptsToWO.cmdOK.caption("OK")
+gui.ReceiptsToWO.cmdOK.visible(True)
+gui.ReceiptsToWO.cmdOK.size(855,375)
+gui.ReceiptsToWO.cmdOK.zorder(0)
+gui.ReceiptsToWO.cmdOK.position(500,2900)
+gui.ReceiptsToWO.cmdOK.enabled(True)
+gui.ReceiptsToWO.cmdOK.fontname("Arial")
+gui.ReceiptsToWO.cmdOK.fontsize(8)
+gui.ReceiptsToWO.cmdOK.event(click,OpenFile_WIR100)
+gui.ReceiptsToWO.cmdEXIT.create(button)
+gui.ReceiptsToWO.cmdEXIT.caption("EXIT")
+gui.ReceiptsToWO.cmdEXIT.visible(True)
+gui.ReceiptsToWO.cmdEXIT.size(855,375)
+gui.ReceiptsToWO.cmdEXIT.zorder(0)
+gui.ReceiptsToWO.cmdEXIT.position(2500,2900)
+gui.ReceiptsToWO.cmdEXIT.enabled(True)
+gui.ReceiptsToWO.cmdEXIT.fontname("Arial")
+gui.ReceiptsToWO.cmdEXIT.fontsize(8)
+gui.ReceiptsToWO.cmdEXIT.event(click,ProgramEnd)
+
+
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Variable.Global.sFile.Declare(String)
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'08/10/2011
+'JCT
+'for Tri-V Tools
+
+V.Local.sQuery.Declare(String)
+V.Local.sCMFile.Declare(String)
+V.Local.iHandleA.Declare(Long)
+V.Local.iHandleB.Declare(Long)
+V.Local.sFilelIst.Declare(String)
+V.Local.sDirectory.Declare(String)
+V.Local.sEndDir.Declare(String)
+V.Local.sImports.Declare(String)
+V.Local.iCount.Declare(Long)
+V.Local.sFile.Declare(String)
+V.Local.sName.Declare(String)
+V.Local.bTrue.Declare(Boolean)
+V.Local.bexists.Declare(String)
+V.Local.iFileCount.Declare(Long)
+V.Local.sParams.Declare(String)
+V.Local.iret.Declare(Long)
+V.Local.sExceptDir.Declare(String)
+V.Local.sPOFile.Declare(String)
+
+
+
+
+'R:\Databases\filename.csv
+
+'Opens ODBC connection
+Function.Odbc.Connection!Con.Openconnection(Variable.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+'Clears existing data for the calling Terminal
+F.Intrinsic.String.Concat("DELETE FROM GCG_4763_RCPTS_TO_WO WHERE TERMINAL = '",V.Caller.Terminal,"'",V.Local.squery)
+F.ODBC.Connection!Con.Execute(V.Local.sQuery)
+
+F.Intrinsic.File.GetHandle(V.Local.iHandleA)
+F.Intrinsic.File.GetHandle(V.Local.iHandleB)
+
+'check for Vending directory; create if not present
+'F.Intrinsic.String.Concat(V.Caller.FilesDir,"\Vending\",V.Local.sDirectory)
+'F.Intrinsic.File.DirExists(V.Local.sDirectory,V.Local.bExists)
+'	F.Intrinsic.Control.If(V.Local.bExists,=,False)
+'		F.Intrinsic.File.CreateDir(V.Local.sEndDir)
+'	F.Intrinsic.Control.EndIf
+'
+V.Local.sDirectory.Set("R:\Databases\")
+
+'check for Import\Complete directory; create if not present
+F.Intrinsic.String.Concat(V.Local.sDirectory,"Complete\",V.Local.sEndDir)
+F.Intrinsic.File.DirExists(V.Local.sEndDir,V.Local.bExists)
+	F.Intrinsic.Control.If(V.Local.bExists,=,False)
+		F.Intrinsic.File.CreateDir(V.Local.sEndDir)
+	F.Intrinsic.Control.EndIf
+
+'check for Import\Complete directory; create if not present
+F.Intrinsic.String.Concat(V.Local.sDirectory,"Exceptions\",V.Local.sExceptDir)
+F.Intrinsic.File.DirExists(V.Local.sExceptDir,V.Local.bExists)
+	F.Intrinsic.Control.If(V.Local.bExists,=,False)
+		F.Intrinsic.File.CreateDir(V.Local.sExceptDir)
+	F.Intrinsic.Control.EndIf
+
+
+
+'get the file list from the "Import"directory
+F.Intrinsic.File.GetFileList(V.Local.sDirectory,1,V.Local.sFile)
+F.Intrinsic.String.Split(V.Local.sFile,":",V.Local.sName)
+
+'if no files are found give message
+F.Intrinsic.Control.If(V.Local.sName,=,"")
+	F.Intrinsic.UI.Msgbox("No Upload Files Found")
+	F.Intrinsic.Control.CallSub(Programend)
+F.Intrinsic.Control.EndIf
+
+'count number of PO files
+V.Local.iCount.Set(-1)
+F.Intrinsic.Control.For(V.Local.iFileCount,V.Local.sName.LBound,V.Local.sName.UBound,1)
+	F.Intrinsic.string.split(V.Local.sName(v.Local.iFileCount),"-",V.Local.sPOFile)
+		F.Intrinsic.Control.If(V.Local.sPOFile(0),=,"CMPO")
+			F.Intrinsic.Math.Add(V.Local.iCount,1,V.Local.iCount)
+		F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Next(V.Local.iFileCount)
+
+'if all files are PO's give message
+F.Intrinsic.Control.If(V.Local.iCount,=,V.Local.sName.UBound)
+	F.Intrinsic.UI.Msgbox("No Upload Files Found")
+	F.Intrinsic.Control.CallSub(Programend)
+F.Intrinsic.Control.EndIf
+
+'for each upload file...
+F.Intrinsic.Control.For(V.Local.iFileCount,V.Local.sName.LBound,V.Local.sName.UBound,1)
+	F.Intrinsic.string.split(V.Local.sName(v.Local.iFileCount),"-",V.Local.sPOFile)
+
+	F.Intrinsic.Control.If(V.Local.sPOFile,<>,"CMPO")
+		F.Intrinsic.String.Concat(V.Local.sDirectory,V.Local.sName(V.Local.iFileCount),V.Local.sFile)
+		F.Intrinsic.String.Concat(V.Local.sEndDir,V.Local.sName(V.Local.iFileCount),V.Global.sFile)
+			F.Intrinsic.File.CopyFile(V.Local.sFile,V.Global.sFile)
+			F.Intrinsic.File.DeleteFile(V.Local.sFile)
+
+'		F.Intrinsic.File.OpenForRead(V.Global.sFile,V.Local.iHandleA)
+			F.Intrinsic.Control.CallSub(Openfile_wir100,"Directory",V.Local.sDirectory,"Except",V.Local.sExceptDir)
+'		F.Intrinsic.File.CloseFile(V.Local.iHandleA)
+	F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.Next(V.Local.iFileCount)
+F.Intrinsic.File.CloseFile(V.Local.iHandleB)
+
+
+'print the report
+F.Intrinsic.Control.CallSub(Printreport,"param",V.Args.param)
+
+
+
+
+
+
+Program.Sub.Main.End
+
+Program.Sub.OpenFile_WIR100.Start
+V.Local.sSQL.Declare(String)
+V.Local.sData.Declare(String)
+V.Local.sLines.Declare(String)
+V.Local.sLine.Declare(String)
+V.Local.sInv.Declare(String)
+
+V.Local.iC.Declare(Long)
+'V.Local.iX.Declare(Long)
+V.Local.iHndlA.Declare(Long)
+V.Local.iHndlB.Declare(Long)
+
+V.Local.sB.Declare(String)
+V.Local.sC.Declare(String)
+V.Local.sD.Declare(String)
+
+V.Local.sDirectory.Declare(String)
+V.Local.sFile.Declare(String)
+V.Local.sExcept.Declare(String)
+V.Local.sPart.Declare(String)
+V.Local.sDescription.Declare(String)
+V.Local.dDate.Declare(String)
+V.Local.lDate.Declare(Long)
+V.Local.sDate.declare(String)
+V.Local.sPrtDte.Declare(String)
+V.Local.sTime.Declare(String)
+V.Local.sprtTime.Declare(String)
+V.Local.sEmp.Declare(String)
+V.Local.sJob.Declare(String)
+V.Local.sSuffix.Declare(String)
+V.Local.sSeq.Declare(String)
+V.Local.fQty.Declare(Float)
+V.Local.sQuantity.Declare(String)
+V.Local.sCost.Declare(String)
+V.Local.sprntCost.Declare(String)
+V.Local.sKey.Declare(String)
+V.Local.iRet.Declare(Long)
+V.Local.sStartDate.Declare(String)
+V.Local.sEndDate.Declare(String)
+V.Local.sparams.Declare(String)
+V.Local.sExceptFile.Declare(String)
+V.Local.iHndl.Declare(Long)
+V.Local.lCount.Declare(Long)
+V.Local.lFileCount.Declare(Long)
+V.Local.sFileCount.Declare(String)
+V.Local.lElement.Declare(Long)
+V.Local.lFor.Declare(Long)
+V.Local.sReason.Declare(String)
+V.Local.sPrgm.Declare(String)
+V.Local.sLoadFile.Declare(String)
+V.Local.fprntCost.Declare(Float)
+
+V.Local.boolean.Declare(Boolean)
+V.Local.bExists.Declare(Boolean)
+
+V.Local.iHndl.Set(V.Caller.Handle)
+
+F.Intrinsic.String.Replace(V.Ambient.Date,"/","",V.Local.sExceptFile)
+F.Intrinsic.String.Concat("Exceptions",V.Local.sExceptFile,V.Local.sExceptFile)
+
+
+'organize data from .csv file.  Split data into separate lines; determine line count for array
+F.Intrinsic.File.File2String(V.Global.sFile,V.Local.sData)
+	F.Intrinsic.String.Split(V.Local.sData,V.Ambient.NewLine,V.Local.sLines)
+	F.Intrinsic.Control.For(V.Local.iC,V.Local.sLines.LBound,V.Local.sLines.UBound,1)
+
+F.Intrinsic.File.GetHandle(V.Local.iHndlA)
+
+'split data on each line to get individual cell values	
+
+		F.Intrinsic.String.SplitCSV(V.Local.sLines(v.Local.iC),V.Local.sD)
+			V.Local.sD.RedimPreserve(0,9)
+'			F.Intrinsic.Control.If(V.Local.sD.UBound,>,19)
+'				F.Intrinsic.Math.Sub(V.Local.sD.UBound,19,V.Local.lCount)
+'			F.Intrinsic.Control.EndIf
+'
+'set field values based on determned cell values
+			V.Local.sPart.Set(V.Local.sD(0))
+				F.Intrinsic.String.Replace(V.Local.sPart,"""",V.Ambient.DblQuote,V.Local.sPart)
+				F.Intrinsic.String.Trim(V.Local.sPart,V.Local.sPart)
+
+			V.Local.sDescription.Set(V.Local.sD(1))
+				F.Intrinsic.String.Replace(V.Local.sDescription,"""","",V.Local.sDescription)
+				F.Intrinsic.String.Trim(V.Local.sDescription,V.Local.sDescription)
+				F.Intrinsic.String.Left(V.Local.sDescription,30,V.Local.sDescription)
+
+			V.Local.dDate.Set(V.Local.sD(2))
+				F.Intrinsic.String.Format(V.Local.dDate,"MMDDYYYY",V.Local.sPrtDte)
+
+			V.Local.sTime.Set(V.Local.sD(3))
+				F.Intrinsic.String.Replace(V.Local.sTime,"""","",V.Local.sTime)
+				F.Intrinsic.String.Trim(V.Local.sTime,V.Local.sTime)
+				V.Local.sPrtTime.Set(V.Local.sTime)
+
+			V.Local.sEmp.Set(V.Local.sD(4))
+				F.Intrinsic.String.Replace(V.Local.sEmp,"""","",V.Local.sEmp)
+				F.Intrinsic.String.Trim(V.Local.sEmp,V.Local.sEmp)
+				F.Intrinsic.String.LPad(V.Local.sEmp,"0",5,V.Local.sEmp)
+
+			V.Local.sJob.Set(V.Local.sD(5))
+				F.Intrinsic.String.Replace(V.Local.sJob,"""","",V.LocaL.sJob)
+				F.Intrinsic.String.StripCharacters(V.Local.sJob,V.Local.sJob)
+				F.Intrinsic.String.Trim(V.Local.sJob,V.Local.sJob)
+				F.Intrinsic.String.LPad(V.Local.sJob,"0",6,V.Local.sJob)
+
+			V.Local.sSuffix.Set(V.Local.sD(6))
+				F.Intrinsic.String.Trim(V.Local.sSuffix,V.Local.sSuffix)
+				F.Intrinsic.String.StripCharacters(V.Local.sSuffix,V.Local.sSuffix)
+					F.Intrinsic.Control.If(V.Local.sSuffix,<>,"")
+						F.Intrinsic.String.LPad(V.Local.sSuffix,"0",3,V.Local.sSuffix)
+'							F.Intrinsic.Control.Else
+'								F.Intrinsic.String.LPad(V.Local.sSuffix," ",3,V.Local.sSuffix)
+					F.Intrinsic.Control.EndIf
+
+			V.Local.sSeq.Set("995000")
+
+			V.Local.fQty.Set(V.Local.sD(8))
+				F.Intrinsic.String.Format(V.Local.fQty,"0.0000",V.Local.sQuantity)
+				F.Intrinsic.String.Trim(V.Local.sQuantity,V.Local.sQuantity)
+
+			V.Local.sCost.Set(V.Local.sD(9))
+				F.Intrinsic.String.Trim(V.Local.sCost,V.Local.sCost)
+				V.Local.sprntCost.Set(V.Local.sCost)
+
+V.Local.sReason.Set("")
+
+F.Intrinsic.String.Concat("select PART,QTY_ONHAND from INVENTORY_MSTR where PART='",V.Local.sPart,"'",V.Local.sInv)
+F.ODBC.Connection!Con.OpenRecordsetRO("rstInv",V.Local.sInv)
+'if part not found call sub to create part; set qty to 0
+	F.Intrinsic.Control.If(V.ODBC.Con!rstInv.EOF,=,True)
+		F.Intrinsic.Control.CallSub(Createpart,"Part",V.Local.sPart,"Descr",V.Local.sDescription,"Price",V.Local.sCost)
+	F.Intrinsic.Control.EndIf
+F.ODBC.Con!rstInv.Close
+
+		F.Intrinsic.Control.If(V.Local.sjob,<>,"000000")
+		F.Intrinsic.Control.AndIf(V.Local.sjob,<>,"(none)")
+'		F.Intrinsic.Control.If(V.Local.sReason,=,"")
+
+			'combine each separate line of selected data for writing to ASCII file	
+			F.Intrinsic.String.Concat(V.Local.sPart,",,,",V.Local.sQuantity,",","",",","",",","",",","",",",V.Local.sJob,",",V.Local.sSuffix,",",V.Local.sSeq,V.Local.sB)
+				
+				Function.Intrinsic.String.Concat("Select * from GCG_4763_RCPTS_TO_WO where TERMINAL='",V.Caller.Terminal,"'order by DATE_ISSUE,TIME_ISSUE desc",Variable.Local.sSQL)
+				F.ODBC.Connection!Con.OpenRecordsetRW("rsta",V.Local.sSQL)
+				'Adds new detail line for the selected part
+							Function.ODBC.Con!rsta.AddNew
+								F.ODBC.Con!rsta.Set!TERMINAL(V.Caller.Terminal)
+								F.ODBC.con!rsta.Set!PART(V.Local.sPart)
+								F.ODBC.Con!rsta.Set!DESCRIPTION(V.Local.sDescription)
+								F.ODBC.Con!rsta.Set!DATE_ISSUE(V.Local.dDate.Trim)
+								F.ODBC.Con!rsta.Set!TIME_ISSUE(V.Local.sPrtTime)
+								F.ODBC.Con!rsta.Set!EMPLOYEE_NO(V.Local.sEmp)
+								F.ODBC.Con!rsta.Set!JOB(V.Local.sJob)
+								F.ODBC.Con!rsta.Set!SUFFIX(V.Local.sSuffix)
+								F.ODBC.Con!rsta.Set!SEQ(V.Local.sSeq)
+								F.ODBC.Con!rsta.Set!QTY(V.Local.sQuantity)
+								F.Intrinsic.Math.ConvertToFloat(V.Local.sprntCost,V.Local.fprntCost)
+								F.ODBC.Con!rsta.Set!COST(V.Local.fprntCost)
+							F.ODBC.Con!rsta.Update
+				F.ODBC.Con!rsta.Close
+		
+		F.Intrinsic.Control.Else
+			F.Intrinsic.Control.If(V.Local.sJob,=,"(none)")
+				F.Intrinsic.String.Concat(V.Local.sReason,"/Invalid Job#",V.Local.sReason)
+			F.Intrinsic.Control.EndIf
+			F.Intrinsic.Control.If(V.Local.sjob,=,"000000")
+				F.Intrinsic.String.Concat(V.Local.sReason,"/Invalid Job#",V.Local.sReason)
+			F.Intrinsic.Control.EndIf
+
+		F.Intrinsic.Control.EndIf
+
+		F.Intrinsic.Control.If(V.Local.sReason,<>,"")
+			F.Intrinsic.File.GetHandle(V.Local.iHndlB)
+			F.Intrinsic.String.Concat(V.Local.sPart,",",V.Local.sDescription,",",V.Local.sPrtDte,",",V.Local.sprtTime,",",V.Local.sEmp,",",V.Local.sJob,",",V.Local.sSuffix,",",V.Local.sSeq,",",V.Local.sQuantity,",",V.Local.sCost,",",V.Local.sReason,V.Local.sC)
+				F.Intrinsic.String.Concat(V.Args.Except,"\",V.Local.sExceptFile,".csv",V.Local.sExcept)
+					V.Local.bExists.Set(False)
+					F.Intrinsic.File.Exists(V.Local.sExcept,V.Local.bExists)
+						F.Intrinsic.Control.If(V.Local.bExists,=,True)
+							F.Intrinsic.File.OpenForAppend(V.Local.sExcept,V.Local.iHndlB)
+						F.Intrinsic.Control.Else
+							F.Intrinsic.File.OpenForWrite(V.Local.sExcept,V.Local.iHndlB)
+						F.Intrinsic.Control.EndIf
+				F.Intrinsic.File.WriteLine(V.Local.iHndlB,V.Local.sC)
+			F.Intrinsic.File.CloseFile(V.Local.iHndlB)
+		F.Intrinsic.Control.EndIf
+
+
+
+
+F.Intrinsic.Control.If(V.Local.sB,<>,"")
+
+			F.Intrinsic.Math.Add(V.Local.lFileCount,1,V.Local.lFileCount)
+			F.Intrinsic.String.LPad(V.Local.lFileCount,"0",4,V.Local.sFileCount)
+			F.Intrinsic.String.Concat("L",V.Caller.CompanyCode,V.Caller.Terminal,"T",V.Local.sFileCount,".txt",V.Local.sLoadFile)
+			F.Intrinsic.String.Concat(V.Caller.FilesDir,"\",V.Local.sLoadFile,V.Local.sFile)
+
+	F.Intrinsic.File.GetHandle(V.Local.iHndlA)
+		F.Intrinsic.File.OpenForWrite(V.Local.sFile,V.Local.iHndlA)
+			F.Intrinsic.File.WriteLine(V.Local.iHndlA,V.Local.sB)
+		F.Intrinsic.File.CloseFile(V.Local.iHndlA)
+
+	F.Global.General.CallWrapperSync(450100,V.Local.sLoadFile)
+F.Intrinsic.Control.EndIf
+
+			V.Local.sB.Set("")
+
+		F.Intrinsic.Control.Next(V.Local.iC)
+
+'add return variable to use when calling the Global program
+F.Intrinsic.Variable.AddRV("Param",V.Local.sFile)
+
+
+
+
+Program.Sub.OpenFile_WIR100.End
+
+program.sub.ProgramEnd.start
+
+F.ODBC.Connection!Con.Close
+F.Intrinsic.Control.End
+
+program.sub.ProgramEnd.end
+
+program.sub.PrintReport.start
+ Variable.local.sName.declare(String)
+ Variable.local.sValue.declare(String)
+ Variable.local.sTemp.declare(String)
+V.Local.sPrgm.Declare(String)
+V.Local.iBI.Declare(Long)
+
+V.local.sValue.set(V.Caller.Terminal)
+V.Local.sName.Set("TRMNL")
+
+
+'Calls the report to be printed
+F.Global.BI.GetIDFromName("GCG_4763_RCPTS_TO_WO.rpt",V.local.iBI)
+Function.global.bi.printreport(V.Local.iBI,0,V.Local.sName,V.Local.sValue,"",False)
+
+'F.Intrinsic.String.Concat(V.Caller.PluginsDir,"\GAB\GAS\ATG_Auto_PO.gas",V.Local.sPrgm)
+'V.Local.sPrgm.Set("X:\GAS\FabCorp\ATG_Auto_PO_Generate.gas",V.Local.sPrgm)
+'F.Global.General.CallSyncGAS(V.Local.sPrgm)
+
+
+'F.Intrinsic.String.Concat(V.Caller.PluginsDir,"\GAB\GAS\Create_Inventory_Parts.gas",V.Local.sPrgm)
+'V.Local.sPrgm.Set("X:\GAS\FabCorp\Create_Inventory_Parts.gas",V.Local.sPrgm)
+'F.Global.General.CallSyncGAS(V.Local.sPrgm)
+
+F.ODBC.Connection!Con.Close
+F.Intrinsic.Control.End
+
+program.sub.PrintReport.end
+
+Program.Sub.CreatePart.Start
+V.Local.sCmpny.Declare(String)
+V.Local.sTrmnl.Declare(String)
+V.Local.sCaller.Declare(String)
+V.Local.sPart.Declare(String)
+V.Local.sField.Declare(String)
+V.Local.sDesc.Declare(String)
+V.Local.sUm.Declare(String)
+V.Local.sPrice.Declare(String)
+V.Local.sExport.Declare(String)
+V.Local.sPL.Declare(String)
+V.Local.sFiller.declare(String)
+V.Local.sAlt1.Declare(String)
+V.Local.sAlt2.Declare(String)
+V.Local.sLoc.Declare(String)
+
+
+
+	V.Local.sCmpny.Set(V.Caller.CompanyCode)
+	V.Local.strmnl.Set(V.Caller.Terminal)
+	V.Local.sCaller.Set("UPLOADED  ")
+
+	V.Local.sPart.Set(V.Args.Part)
+	V.Local.sUM.Set("EA")
+	V.Local.sDesc.Set(V.Args.Descr)
+		F.Intrinsic.String.LPad(V.Local.sLoc," ",2,V.Local.sLoc)
+		F.Intrinsic.String.RPad(V.Local.sPL," ",3,V.Local.sPL)
+		F.Intrinsic.String.LPad(V.Local.sFiller," ",6,V.Local.sFiller)
+		F.Intrinsic.String.LPad(V.Local.sAlt1," ",30,V.Local.sAlt1)
+		F.Intrinsic.String.LPad(V.Local.sAlt2," ",30,V.Local.sAlt2)
+	V.Local.sPrice.Set(V.Args.Price)
+
+
+	f.Global.Inventory.CreatePart((V.Local.sPart,V.Local.sUm,V.Local.sDesc,V.Local.sLoc,V.Local.sPL,"P","","",V.Local.sPrice,"UPLOADED")
+
+Program.Sub.CreatePart.End
+
+
