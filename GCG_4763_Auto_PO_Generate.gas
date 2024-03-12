@@ -1,0 +1,168 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+
+V.Local.sPOfile.Declare(String)
+V.Local.sFile.Declare(String)
+V.Local.sCompleteFile.Declare(String)
+V.Local.sTextFile.Declare(String)
+V.Local.sFileToPO.Declare(String)
+V.Local.sLine.Declare(String)
+V.Local.sCompleteLine.Declare(String)
+V.Local.sData.Declare(String)
+V.Local.sdate.Declare(String)
+V.Local.sParam.Declare(String)
+V.Local.sDirectory.Declare(String)
+V.Local.sEndDir.Declare(String)
+V.Local.sName.Declare(String)
+V.Local.sExceptDir.Declare(String)
+V.Local.sExceptFile.Declare(String)
+V.Local.sTempFile.Declare(String)
+V.Local.ssel.Declare(String)
+V.Local.sX.Declare(String)
+
+
+V.Local.bExists.Declare(Boolean)
+V.Local.bFile.Declare(Boolean)
+V.Local.bExcept.Declare(Boolean)
+V.Local.bRunning.Declare(Boolean)
+
+V.Local.iCount.Declare(Long)
+V.Local.iFileCount.Declare(Long)
+V.Local.iA.Declare(Long)
+V.Local.iLineCt.Declare(Long)
+V.Local.iMinusOne.Declare(Long)
+V.Local.lRet.Declare(Long)
+V.Local.iFor.Declare(Long)
+
+V.Local.iHndlA.Declare(Long)
+V.Local.iHndlB.Declare(Long)
+
+F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+'set PO temp file to today's date
+F.Intrinsic.String.Format(V.Ambient.Date,"yyyymmdd",V.Local.sdate)
+F.Intrinsic.String.Concat(V.System.Temp,"\",V.Local.sDate,".txt",V.Local.sTempFile)
+	F.Intrinsic.File.GetHandle(V.Local.iHndlA)
+F.Intrinsic.String.Concat(V.System.Temp,"\Ex",V.Local.sDate,".txt",V.Local.sExceptFile)
+	F.Intrinsic.File.GetHandle(V.Local.iHndlB)
+
+'cribmaster directory
+V.Local.sDirectory.Set("R:\Databases\")
+
+
+'makesureCompleteandExceptionDirectoriesexist
+F.Intrinsic.String.Concat(V.Local.sDirectory,"Complete\",V.Local.sEndDir)
+F.Intrinsic.File.DirExists(V.Local.sEndDir,V.Local.bExists)
+	F.Intrinsic.Control.If(V.Local.bExists,=,False)
+		F.Intrinsic.File.CreateDir(V.Local.sEndDir)
+	F.Intrinsic.Control.EndIf
+
+F.Intrinsic.String.Concat(V.Local.sDirectory,"Exceptions\",V.Local.sExceptDir)
+F.Intrinsic.File.DirExists(V.Local.sExceptDir,V.Local.bExists)
+	F.Intrinsic.Control.If(V.Local.bExists,=,False)
+		F.Intrinsic.File.CreateDir(V.Local.sExceptDir)
+	F.Intrinsic.Control.EndIf
+
+'get list of files in the main directory
+F.Intrinsic.File.GetFileList(V.Local.sDirectory,1,V.Local.sFile)
+F.Intrinsic.String.Split(V.Local.sFile,":",V.Local.sName)
+
+'look for PO files
+F.Intrinsic.Control.For(V.Local.iFileCount,V.Local.sName.LBound,V.Local.sName.UBound,1)
+	F.Intrinsic.string.split(V.Local.sName(v.Local.iFileCount),"-",V.Local.sPOFile)
+		F.Intrinsic.Control.If(V.Local.sPOFile(0),=,"CMPO")
+
+				F.Intrinsic.String.Concat(V.Local.sDirectory,V.Local.sName(V.Local.iFileCount),V.Local.sFile)
+				F.Intrinsic.String.Concat(V.Local.sEndDir,V.Local.sName(V.Local.iFileCount),V.Local.sCompleteFile)
+		
+'				F.Intrinsic.File.MoveFile(V.Local.sFile,V.Local.sCompleteFile,V.Local.lRet)
+				F.Intrinsic.File.CopyFile(V.Local.sFile,V.Local.sCompleteFile)
+				F.Intrinsic.File.DeleteFile(V.Local.sFile)
+
+'format file data
+					F.Intrinsic.File.File2String(V.Local.sCompleteFile,V.Local.sCompleteFile)
+					F.Intrinsic.String.Split(V.Local.sCompleteFile,V.Ambient.NewLine,V.Local.sLine)
+F.Intrinsic.Math.Sub(V.Local.sLine.UBound,1,V.Local.iMinusOne)
+						F.Intrinsic.Control.For(V.Local.iA,V.Local.sLine.LBound,V.Local.iMinusOne,1)
+
+V.Local.sX.Set("")
+							F.Intrinsic.String.SplitCSV(V.Local.sLine(v.Local.iA),V.Local.sData)
+							F.Intrinsic.Control.For(V.Local.iFor,V.Local.sData.LBound,V.Local.sData.UBound,1)
+								F.Intrinsic.String.Replace(V.Local.sData(v.Local.iFor),V.Ambient.QuadQuote,V.Ambient.DblQuote,V.Local.sData(v.Local.iFor))
+							F.Intrinsic.Control.Next(V.Local.iFor)
+
+
+				F.Intrinsic.String.Concat("select PART from INVENTORY_MSTR where PART='",V.Local.sData(1).trim,"'",V.Local.ssel)
+				F.ODBC.Connection!Conx.OpenRecordsetRO("rstA",V.Local.ssel)
+					F.Intrinsic.Control.If(V.ODBC.conx!rstA.EOF,=,False)
+
+							F.Intrinsic.String.Concat(V.Local.sData(0),V.Ambient.Tab,V.Local.sData(1),V.Ambient.Tab,V.Local.sData(2),V.Ambient.Tab,"",V.Ambient.Tab,V.Local.sData(3),V.Ambient.Tab,"",V.Ambient.Tab,"",V.Ambient.Tab,"",V.Ambient.Tab,V.Local.sData(4),V.Ambient.Tab,V.Local.sData(6),V.Ambient.Tab,V.Local.sData(5),V.Ambient.Tab,"",V.Ambient.Tab,V.Local.sData(7),,V.Local.sX)
+
+						F.Intrinsic.File.Exists(V.Local.sTempFile,V.Local.bFile)
+							F.Intrinsic.Control.If(V.Local.bFile,=,False)
+								F.Intrinsic.String.Concat(V.Local.sX,V.Ambient.NewLine,V.Local.sX)
+								F.Intrinsic.File.String2File(V.Local.sTempFile,V.Local.sX)
+							F.Intrinsic.Control.Else
+								F.Intrinsic.File.OpenForAppend(V.Local.sTempFile,V.Local.iHndlA)
+									F.Intrinsic.File.WriteLine(V.Local.iHndlA,V.Local.sX)
+								F.Intrinsic.File.CloseFile(V.Local.iHndlA)
+						F.Intrinsic.Control.EndIf
+
+					F.Intrinsic.Control.Else
+							F.Intrinsic.String.Concat(V.Local.sData(1),",",V.Local.sData(3),",","",",","",",","",",","",",","",",","",",",V.Local.sData(5),",",V.Local.sData(6),",","Non Inventory Part",V.Local.sX)
+
+						F.Intrinsic.File.Exists(V.Local.sExceptFile,V.Local.bExcept)
+							F.Intrinsic.Control.If(V.Local.bExcept,=,False)
+								F.Intrinsic.String.Concat(V.Local.sX,V.Ambient.NewLine,V.Local.sX)
+								F.Intrinsic.File.String2File(V.Local.sExceptFile,V.Local.sX)
+							F.Intrinsic.Control.Else
+								F.Intrinsic.File.OpenForAppend(V.Local.sExceptFile,V.Local.iHndlB)
+									F.Intrinsic.File.WriteLine(V.Local.iHndlB,V.Local.sX)
+								F.Intrinsic.File.CloseFile(V.Local.iHndlB)
+						F.Intrinsic.Control.EndIf
+
+					F.Intrinsic.Control.EndIf
+				F.ODBC.conx!rstA.Close
+
+							F.Intrinsic.Control.Next(V.Local.iA)
+
+						F.Intrinsic.File.Exists(V.Local.sTempFile,V.Local.bFile)
+							F.Intrinsic.Control.If(V.Local.bFile,=,True)
+								F.Intrinsic.String.Concat(V.Local.sTempFile,"!*!Y!*!Y!*!Y",V.Local.sParam)
+
+									F.Intrinsic.Task.IsProgramRunning("PURA64GI",V.Local.bRunning)
+										F.Intrinsic.Control.DoUntil(V.Local.bRunning,=,False)
+											F.Intrinsic.UI.Sleep(5)
+									F.Intrinsic.Control.Loop
+
+								F.Global.General.CallWrapperSync(175100,V.Local.sParam)
+							F.Intrinsic.Control.EndIf
+
+		F.Intrinsic.Control.EndIf
+
+						F.Intrinsic.File.Exists(V.Local.sTempFile,V.Local.bFile)
+							F.Intrinsic.Control.If(V.Local.bFile,=,True)
+								F.Intrinsic.File.DeleteFile(V.Local.sTempFile)
+							F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.Next(V.Local.iFileCount)
+
+							F.Intrinsic.String.Concat(V.Local.sExceptDir,"\PO_",V.Local.sdate,".csv",V.Local.sFile)
+
+						F.Intrinsic.File.Exists(V.Local.sExceptFile,V.Local.bFile)
+							F.Intrinsic.Control.If(V.Local.bFile,=,True)
+								F.Intrinsic.File.CopyFile(V.Local.sExceptFile,V.Local.sFile)
+								F.Intrinsic.File.DeleteFile(V.Local.sExceptFile)
+							F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.End
+
+Program.Sub.Main.End
+
+
